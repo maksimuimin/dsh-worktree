@@ -1,7 +1,7 @@
 {
   "name": "dsh-worktree",
-  "description": "Codex-style permanent git worktrees for DeepSeek Harness: agent tools, a /worktree command, and session context for durable worktrees.",
-  "version": "0.1.0",
+  "description": "Git worktrees for DeepSeek Harness. Listing uses git worktree list; DSH-created checkouts live under .dsh-worktrees.",
+  "version": "0.2.0",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -15,12 +15,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FlashingChen/dsh-worktree.git"
+    "url": "git+https://github.com/maksimuimin/dsh-worktree.git"
   },
   "bugs": {
-    "url": "https://github.com/FlashingChen/dsh-worktree/issues"
+    "url": "https://github.com/maksimuimin/dsh-worktree/issues"
   },
-  "homepage": "https://github.com/FlashingChen/dsh-worktree#readme",
+  "homepage": "https://github.com/maksimuimin/dsh-worktree#readme",
   "engines": {
     "node": ">=20"
   },

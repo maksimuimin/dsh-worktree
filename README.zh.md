@@ -23,9 +23,9 @@
 ## 工作原理
 
 - 工作树位于 `<仓库根>/.dsh-worktrees/<name>`——与 Codex 的 `.codex/worktrees/` 相同的隐藏目录模式——因此始终在仓库内部（当会话工作区就是仓库根时，也在会话的 `workspace-write` 沙箱内）。
-- 每个工作树都会写入按仓库持久化的 manifest：`<仓库根>/.dsh-worktrees/manifest.json`（名称、路径、基线 commit、创建时间、创建者会话）。manifest 就是"永久"的载体：DSH 重启后依然存在，可被工具/命令列出，新会话在其中打开时也能被识别。
+- Git 自己就是登记处。`list` 与 `git worktree list` 显示同一批 checkout，包括其他代理创建的。没有按仓库保存的 manifest。本插件创建的 checkout 放在 `.dsh-worktrees/` 下，重启后仍然在，因为 git 记录了它们。
 - 创建工作树的同时会注册到 `ctx.workspaceRegistry`，出现在 DSH 工作区列表里——这就是之后"打开"它的原生方式。
-- 移除工作树会执行 `git worktree remove`（可选 `--force`）、删除 manifest 条目并注销工作区；拒绝删除当前会话正在运行其中的工作树。
+- 移除工作树会执行 `git worktree remove`（可选 `--force`）并注销工作区；拒绝删除主 checkout，也拒绝删除当前会话正在其中工作的工作树。
 
 ## 环境要求
 
@@ -105,7 +105,7 @@ git 操作走 DSH 自己的 `ctx.subprocess` 通道（而非 agent 的 bash 工�
 
 ```
 lib/manager.js   WorktreeManager：仓库发现、git 工作树生命周期、
-                 按仓库持久化的 manifest（基于 ctx.subprocess 的纯逻辑）
+                 （基于 ctx.subprocess 的纯逻辑，没有 manifest）
 lib/index.js     Cordis 插件：Config、工具、/worktree 命令、
                  一次性会话上下文提示、ctx.worktree 服务
 test/smoke.js    独立冒烟测试

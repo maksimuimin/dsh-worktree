@@ -33,16 +33,15 @@ commit, work there with the normal file tools, and clean up afterwards.
   directory pattern as Codex's `.codex/worktrees/` — so they stay inside the
   repository (and, when the session workspace is the repo root, inside the
   session's `workspace-write` sandbox).
-- Every worktree is recorded in a per-repository manifest,
-  `<repo-root>/.dsh-worktrees/manifest.json` (name, path, base commit,
-  created-at, creator session). The manifest is what makes worktrees
-  **permanent**: they survive DSH restarts, are listed by the tools/command,
-  and are recognized when a new session is opened inside one.
+- Git is the registry. `list` shows the same checkouts as
+  `git worktree list`, including ones created by other agents. There is
+  no per-repository manifest. Checkouts this plugin creates stay under
+  `.dsh-worktrees/` and survive restarts because git records them.
 - Creating a worktree also registers it in `ctx.workspaceRegistry`, so it
   appears in the DSH workspace list — the native way to "open" it later.
 - Removing a worktree runs `git worktree remove` (with `--force` when
-  requested), deletes the manifest entry, and unregisters the workspace.
-  It refuses to remove the worktree the current session is running inside.
+  requested) and unregisters the workspace. It refuses the main checkout
+  and the worktree the current session is running inside.
 
 ## Requirements
 
@@ -144,8 +143,8 @@ as its workspace to work inside it.
 ## Layout
 
 ```
-lib/manager.js   WorktreeManager: repo discovery, git worktree lifecycle,
-                 per-repo manifest (pure logic over ctx.subprocess)
+lib/manager.js   WorktreeManager: repo discovery and git worktree lifecycle
+                 (pure logic over ctx.subprocess; no manifest)
 lib/index.js     Cordis plugin: Config, tools, /worktree command,
                  one-shot session context note, ctx.worktree service
 test/smoke.js    standalone smoke test
