@@ -109,8 +109,13 @@ check("worktree is a directory", fs.statSync(created.worktree.path).isDirectory(
 check("base commit is HEAD", created.worktree.baseCommit === headSha);
 check("permanent flag", created.worktree.permanent === true);
 check("createdBy recorded", created.worktree.createdBy === "session-test");
-const detachedHead = (await run(ctx, ["git", "rev-parse", "HEAD"], created.worktree.path)).stdout;
-check("detached at base commit", detachedHead === headSha);
+const checkedOut = (await run(ctx, ["git", "rev-parse", "--abbrev-ref", "HEAD"], created.worktree.path)).stdout;
+check("branch follows NOTASK-<name>", checkedOut === "NOTASK-feat-a" && created.worktree.branch === "NOTASK-feat-a");
+const branchHead = (await run(ctx, ["git", "rev-parse", "HEAD"], created.worktree.path)).stdout;
+check("branch points at the base commit", branchHead === headSha);
+const renamed = await manager.renameBranch(created.worktree.path, "NOTASK-feat-a", "Write hello world in python");
+const renamedHead = (await run(ctx, ["git", "rev-parse", "--abbrev-ref", "HEAD"], created.worktree.path)).stdout;
+check("prompt becomes the branch name", renamed === "NOTASK-write-hello-world-in-python" && renamedHead === renamed);
 check("no manifest file", !fs.existsSync(path.join(repo, ".dsh-worktrees", "manifest.json")));
 const mainStatus = (await run(ctx, ["git", "status", "--porcelain"], repo)).stdout;
 check("main tree tracked files untouched", mainStatus === `?? .dsh-worktrees/`, JSON.stringify(mainStatus));
@@ -119,7 +124,7 @@ console.log("list");
 const listed = await manager.list(repo);
 const featA = listed.worktrees.find((entry) => entry.name === "feat-a");
 check("created worktree listed", featA !== undefined && featA.exists === true);
-check("created worktree detached at HEAD", featA?.branch === null && featA?.head === headSha);
+check("created worktree is on its branch at HEAD", featA?.branch === "NOTASK-write-hello-world-in-python" && featA?.detached === false && featA?.head === headSha);
 check("main checkout is listed too", listed.worktrees.some((entry) => entry.main));
 check("list is created plus main", listed.worktrees.length === 2);
 
